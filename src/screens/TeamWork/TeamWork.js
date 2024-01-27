@@ -80,7 +80,7 @@ const TeamWork = ({
 	}, []);
 
 	const sorting = (col, sortingOrder1) => {
-		if (col === 'tasks_count' || col === 'active_count') {
+		if (col === 'tasks_count' || col === 'active_count' || col === 'completed_todo') {
 			if (sortingOrder1 === 'ASC') {
 				const sorted = [...users].sort((a, b) => (a[col] < b[col] ? 1 : -1));
 
@@ -129,6 +129,8 @@ const TeamWork = ({
 		}
 		//(sortingOrder);
 	};
+
+	const activitySort = () => {};
 
 	const getTeamWorkData = () => {
 		// setLoading(true);
@@ -278,6 +280,9 @@ const TeamWork = ({
 		setOpenDeleteModal(false);
 	};
 
+	const [clientproj, setClientproj] = useState(true);
+	const [redproj, setRedproj] = useState(false);
+
 	return (
 		<>
 			<motion.div
@@ -288,6 +293,47 @@ const TeamWork = ({
 				transition={pageTransitions}
 				style={{ width: '100%', height: '100%' }}
 			>
+				<div
+					style={{
+						marginBottom: '20px',
+						display: 'flex',
+						gap: '50px',
+						paddingBottom: '20px'
+					}}
+				>
+					<button
+						className='hover'
+						style={{
+							fontSize: '20px',
+							backgroundColor: 'transparent',
+							color: 'white',
+							border: 'none',
+							opacity: `${clientproj & !redproj ? `1` : `0.5`}`
+						}}
+						onClick={() => {
+							setClientproj(true);
+							setRedproj(false);
+						}}
+					>
+						Client Projects
+					</button>
+					<button
+						className='hover'
+						style={{
+							fontSize: '20px',
+							backgroundColor: 'transparent',
+							color: 'white',
+							border: 'none',
+							opacity: `${!clientproj & redproj ? `1` : `0.5`}`
+						}}
+						onClick={() => {
+							setClientproj(false);
+							setRedproj(true);
+						}}
+					>
+						Redwing
+					</button>
+				</div>
 				<Container>
 					{showTabComponent && (
 						<TabComponent
@@ -369,7 +415,7 @@ const TeamWork = ({
 												)}
 											</th>
 
-											<th
+											{/* <th
 												style={{
 													textAlign: 'left',
 													position: 'relative',
@@ -383,8 +429,43 @@ const TeamWork = ({
 												}}
 											>
 												Activity
-											</th>
+											</th> */}
 
+											<th
+												onClick={e => {
+													e.preventDefault();
+													setSortingColumn('completed_todo');
+													if (sortingOrder === 'ASC') {
+														sorting('completed_todo', 'ASC');
+													} else {
+														sorting('completed_todo', 'DEC');
+													}
+												}}
+												style={{
+													textAlign: 'left',
+													position: 'relative',
+													right: '-30px',
+													paddingRight: '5rem',
+													fontSize: '14px',
+													lineHeight: '21px',
+													fontFamily: 'Poppins',
+													fontWeight: '500',
+													width: 'max-content'
+												}}
+											>
+												Activity
+												{sortingColumn === 'completed_todo' ? (
+													<a style={{ color: 'white', marginLeft: '2px' }} href='/'>
+														{sortingOrder === 'ASC' ? (
+															<ArrowUpwardIcon style={{ position: 'relative', top: '2px' }} />
+														) : (
+															<ArrowDownwardIcon style={{ position: 'relative', top: '2px' }} />
+														)}
+													</a>
+												) : (
+													''
+												)}{' '}
+											</th>
 											<th
 												onClick={e => {
 													e.preventDefault();
@@ -483,30 +564,59 @@ const TeamWork = ({
 											</th>
 										</tr>
 									</thead>
-									<tbody>
-										{users
-											? users.map((user, key) => {
-													return (
-														<TableRow
-															key={key}
-															img={user.avatar}
-															user_id={user.user_id}
-															tasks={user.tasks_count}
-															name={user.name}
-															active={user.active_count}
-															active_todo={user.active_todo_count}
-															projects={user.project_ids}
-															completed_todo={user.completed_todo}
-															last_active_at={user.last_active_at}
-															projectsdata={projects}
-															data={data.users}
-															getTeamWorkData={getTeamWorkData}
-															setLoading={setLoading}
-														/>
-													);
-											  })
-											: ''}
-									</tbody>
+									{redproj ? (
+										<tbody>
+											{users
+												? users.map((user, key) => {
+														if (user.project_ids.includes(23190856)) {
+															return (
+																<TableRow
+																	key={key}
+																	img={user.avatar}
+																	user_id={user.user_id}
+																	tasks={user.tasks_count}
+																	name={user.name}
+																	active={user.active_count}
+																	active_todo={user.active_todo_count}
+																	projects={user.project_ids}
+																	completed_todo={user.completed_todo}
+																	last_active_at={user.last_active_at}
+																	projectsdata={projects}
+																	data={data.users}
+																	getTeamWorkData={getTeamWorkData}
+																	setLoading={setLoading}
+																/>
+															);
+														}
+												  })
+												: ''}
+										</tbody>
+									) : (
+										<tbody>
+											{users
+												? users.map((user, key) => {
+														return (
+															<TableRow
+																key={key}
+																img={user.avatar}
+																user_id={user.user_id}
+																tasks={user.tasks_count}
+																name={user.name}
+																active={user.active_count}
+																active_todo={user.active_todo_count}
+																projects={user.project_ids}
+																completed_todo={user.completed_todo}
+																last_active_at={user.last_active_at}
+																projectsdata={projects}
+																data={data.users}
+																getTeamWorkData={getTeamWorkData}
+																setLoading={setLoading}
+															/>
+														);
+												  })
+												: ''}
+										</tbody>
+									)}
 								</table>
 								{showActionButtons && (
 									<MdContainer maxWidth='md'>
@@ -768,6 +878,7 @@ const TableRow = props => {
 	console.log(props.active);
 	return (
 		<tr style={{ marginTop: '0', paddingTop: '0' }}>
+			{/* <h1>Helllo</h1> */}
 			<td style={{ fontSize: '14px' }}>
 				<Grid container spacing={2}>
 					<Grid item xs={2} sm={1} style={{ transform: 'translateY(-2px)' }}>

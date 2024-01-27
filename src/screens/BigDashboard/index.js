@@ -297,6 +297,7 @@ const BigDashboard = ({ selectedProject, setSelectedProject, timer }) => {
 						<TopStatistics text={'Tasks Today'} count={topStatisticsCount.tasksToday} />
 						<TopStatistics text={'Team Load'} count={totalTickets} />
 						<TopStatistics text={'Completions'} count={completedTask} />
+						<TopStatistics text={'Sleeping'} count={allusers.sleeping_tasks} />
 					</div>
 					<button
 						className={styles.expand}
@@ -359,9 +360,9 @@ const BigDashboard = ({ selectedProject, setSelectedProject, timer }) => {
 					<TeamWork
 						isInverted={true}
 						screenIndex={2}
-						showTeamTabTop={true}
+						showTeamTabTop={false}
 						showTabComponent={false}
-						showActionButtons={true}
+						showActionButtons={false}
 					/>
 				</div>
 			</div>
