@@ -80,7 +80,7 @@ const TeamWork = ({
 	}, []);
 
 	const sorting = (col, sortingOrder1) => {
-		if (col === 'tasks_count' || col === 'active_count' || col === 'completed_todo') {
+		if (col === 'tasks_count' || col === 'active_count') {
 			if (sortingOrder1 === 'ASC') {
 				const sorted = [...users].sort((a, b) => (a[col] < b[col] ? 1 : -1));
 
@@ -121,6 +121,20 @@ const TeamWork = ({
 				const sorted = [...users].sort((a, b) =>
 					a[col].toLowerCase() > b[col].toLowerCase() ? 1 : -1
 				);
+
+				setUsers(sorted);
+
+				setSortingOrder('ASC');
+			}
+		} else if (col === 'completed_todo') {
+			if (sortingOrder1 === 'ASC') {
+				const sorted = [...users].sort((a, b) => (a[col] < b[col] ? 1 : -1));
+
+				setUsers(sorted);
+
+				setSortingOrder('DEC');
+			} else if (sortingOrder1 === 'DEC') {
+				const sorted = [...users].sort((a, b) => (a[col] > b[col] ? 1 : -1));
 
 				setUsers(sorted);
 
@@ -172,23 +186,7 @@ const TeamWork = ({
 	// 		});
 	// };
 
-	useEffect(() => {
-		var users = [];
-		if (data && data.users && data.users.length) {
-			data.users.forEach(user => {
-				if (user.user_id !== 33629907 && user.name?.length > 0) {
-					users.push(user);
-				}
-			});
-			// for (var k in data.users) {
-			// 	users.push(data.users[k]);
-			// }
-			setUsers(users);
-			setSortingOrder('DEC');
-			setSortingColumn('tasks_count');
-		}
-	}, [data]);
-
+	const [total, setTotal] = useState(users.length);
 	useEffect(() => {
 		var projects = [];
 		for (var k in projectData) {
@@ -280,8 +278,58 @@ const TeamWork = ({
 		setOpenDeleteModal(false);
 	};
 
+	// ==================== For Playground ===================
+	const [play, setPlay] = useState(true);
+	// ~
 	const [clientproj, setClientproj] = useState(true);
 	const [redproj, setRedproj] = useState(false);
+
+	// ======================= For Project ========================
+	const [proj, setProj] = useState(false);
+	// ~
+	const [multi, setMulti] = useState(false);
+	const [prwise, setPrwise] = useState(false);
+	const [idle, setIdle] = useState(false);
+
+	// ======================= For Performance ========================
+	const [perf, setPerf] = useState(false);
+	// ~
+	const [top, setTop] = useState(false);
+	const [median, setMedian] = useState(false);
+	const [free, setFree] = useState(false);
+
+	// ============================================================fire asbo========
+
+	function reset() {
+		setClientproj(false);
+		setRedproj(false);
+		setMulti(false);
+		setPrwise(false);
+		setIdle(false);
+		setTop(false);
+		setMedian(false);
+		setFree(false);
+	}
+
+	useEffect(() => {
+		var users = [];
+		if (data && data.users && data.users.length) {
+			data.users.forEach(user => {
+				if (user.user_id !== 33629907 && user.name?.length > 0) {
+					users.push(user);
+				}
+			});
+			// for (var k in data.users) {
+			// 	users.push(data.users[k]);
+			// }
+			setUsers(users);
+
+			// ============= Back Again =============
+
+			setSortingOrder('DEC');
+			setSortingColumn('tasks_count');
+		}
+	}, [data, perf]);
 
 	return (
 		<>
@@ -293,6 +341,7 @@ const TeamWork = ({
 				transition={pageTransitions}
 				style={{ width: '100%', height: '100%' }}
 			>
+				{/* Segmenting  */}
 				<div
 					style={{
 						marginBottom: '20px',
@@ -308,14 +357,39 @@ const TeamWork = ({
 							backgroundColor: 'transparent',
 							color: 'white',
 							border: 'none',
-							opacity: `${clientproj & !redproj ? `1` : `0.5`}`
+							opacity: `${play && !proj && !perf ? `1` : `0.5`}`,
+							display: 'flex',
+							gap: '10px'
 						}}
 						onClick={() => {
+							reset();
+							setPlay(true);
+							setProj(false);
+							setPerf(false);
 							setClientproj(true);
-							setRedproj(false);
 						}}
 					>
-						Client Projects
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							fill='none'
+							viewBox='0 0 24 24'
+							strokeWidth={1.5}
+							stroke='currentColor'
+							className='w-6 h-6'
+							style={{ width: '30px' }}
+						>
+							<path
+								strokeLinecap='round'
+								strokeLinejoin='round'
+								d='M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+							/>
+							<path
+								strokeLinecap='round'
+								strokeLinejoin='round'
+								d='M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z'
+							/>
+						</svg>
+						Playground
 					</button>
 					<button
 						className='hover'
@@ -324,16 +398,254 @@ const TeamWork = ({
 							backgroundColor: 'transparent',
 							color: 'white',
 							border: 'none',
-							opacity: `${!clientproj & redproj ? `1` : `0.5`}`
+							opacity: `${!play && proj && !perf ? `1` : `0.5`}`,
+							display: 'flex',
+							gap: '10px'
 						}}
 						onClick={() => {
-							setClientproj(false);
-							setRedproj(true);
+							reset();
+							setPlay(false);
+							setProj(true);
+							setPerf(false);
+							setMulti(true);
 						}}
 					>
-						Redwing
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							fill='none'
+							viewBox='0 0 24 24'
+							strokeWidth={1.5}
+							stroke='currentColor'
+							className='w-6 h-6'
+							style={{ width: '30px' }}
+						>
+							<path
+								strokeLinecap='round'
+								strokeLinejoin='round'
+								d='M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25'
+							/>
+						</svg>
+						Project
+					</button>
+					<button
+						className='hover'
+						style={{
+							fontSize: '20px',
+							backgroundColor: 'transparent',
+							color: 'white',
+							border: 'none',
+							opacity: `${!play && !proj && perf ? `1` : `0.5`}`,
+							display: 'flex',
+							gap: '10px'
+						}}
+						onClick={() => {
+							reset();
+							setPlay(false);
+							setProj(false);
+							setPerf(true);
+							setTop(true);
+							// setSortingColumn('completed_todo');
+							// sorting('completed_todo', 'DESC');
+						}}
+					>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							fill='none'
+							viewBox='0 0 24 24'
+							strokeWidth={1.5}
+							stroke='currentColor'
+							className='w-6 h-6'
+							style={{ width: '30px' }}
+						>
+							<path
+								strokeLinecap='round'
+								strokeLinejoin='round'
+								d='m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z'
+							/>
+						</svg>
+						Performance
 					</button>
 				</div>
+				{/* ======================= nested options ===================== */}
+				<div
+					style={{
+						marginBottom: '20px',
+						display: 'flex',
+						gap: '50px',
+						paddingBottom: '20px'
+					}}
+				>
+					{play ? (
+						<>
+							{' '}
+							<button
+								className='hover'
+								style={{
+									fontSize: '15px',
+									backgroundColor: 'transparent',
+									border: 'none',
+									opacity: `${clientproj & !redproj ? `1` : `0.5`}`,
+									color: `#87CEEB`,
+									fontWeight: `bold`
+								}}
+								onClick={() => {
+									reset();
+									setClientproj(true);
+									setRedproj(false);
+								}}
+							>
+								Client Projects
+							</button>
+							<button
+								className='hover'
+								style={{
+									fontSize: '15px',
+									backgroundColor: 'transparent',
+									border: 'none',
+									opacity: `${!clientproj & redproj ? `1` : `0.5`}`,
+									color: `#87CEEB`,
+									fontWeight: `bold`
+								}}
+								onClick={() => {
+									reset();
+									setClientproj(false);
+									setRedproj(true);
+								}}
+							>
+								Redwing
+							</button>
+						</>
+					) : proj ? (
+						<>
+							<button
+								className='hover'
+								style={{
+									fontSize: '15px',
+									backgroundColor: 'transparent',
+									border: 'none',
+									opacity: `${multi && !prwise && !idle ? `1` : `0.5`}`,
+									color: `#87CEEB`,
+									fontWeight: `bold`
+								}}
+								onClick={() => {
+									reset();
+									setMulti(true);
+									setPrwise(false);
+									setIdle(false);
+								}}
+							>
+								Multitasking
+							</button>
+							<button
+								className='hover'
+								style={{
+									fontSize: '15px',
+									backgroundColor: 'transparent',
+									border: 'none',
+									opacity: `${!multi && prwise && !idle ? `1` : `0.5`}`,
+									color: `#87CEEB`,
+									fontWeight: `bold`
+								}}
+								onClick={() => {
+									reset();
+									setMulti(false);
+									setPrwise(true);
+									setIdle(false);
+								}}
+							>
+								Project-wise
+							</button>
+							<button
+								className='hover'
+								style={{
+									fontSize: '15px',
+									backgroundColor: 'transparent',
+									border: 'none',
+									opacity: `${!multi && !prwise && idle ? `1` : `0.5`}`,
+									color: `#87CEEB`,
+									fontWeight: `bold`
+								}}
+								onClick={() => {
+									reset();
+									setMulti(false);
+									setPrwise(false);
+									setIdle(true);
+								}}
+							>
+								Idle
+							</button>
+						</>
+					) : perf ? (
+						<>
+							<button
+								className='hover'
+								style={{
+									fontSize: '15px',
+									backgroundColor: 'transparent',
+									border: 'none',
+									opacity: `${top && !median && !free ? `1` : `0.5`}`,
+									color: `#87CEEB`,
+									fontWeight: `bold`
+								}}
+								onClick={() => {
+									reset();
+									setTop(true);
+									setMedian(false);
+									setFree(false);
+									// setSortingColumn('completed_todo');
+									// sorting('completed_todo', 'DESC');
+								}}
+							>
+								Top
+							</button>
+							<button
+								className='hover'
+								style={{
+									fontSize: '15px',
+									backgroundColor: 'transparent',
+									border: 'none',
+									opacity: `${!top && median && !free ? `1` : `0.5`}`,
+									color: `#87CEEB`,
+									fontWeight: `bold`
+								}}
+								onClick={() => {
+									reset();
+									setTop(false);
+									setMedian(true);
+									setFree(false);
+									// setSortingColumn('completed_todo');
+									// sorting('completed_todo', 'DESC');
+								}}
+							>
+								Median
+							</button>
+							<button
+								className='hover'
+								style={{
+									fontSize: '15px',
+									backgroundColor: 'transparent',
+									border: 'none',
+									opacity: `${!top && !median && free ? `1` : `0.5`}`,
+									color: `#87CEEB`,
+									fontWeight: `bold`
+								}}
+								onClick={() => {
+									reset();
+									setTop(false);
+									setMedian(false);
+									setFree(true);
+									// setSortingColumn('completed_todo');
+									// sorting('completed_todo', 'DESC');
+								}}
+							>
+								Flag
+							</button>
+						</>
+					) : (
+						``
+					)}
+				</div>
+
 				<Container>
 					{showTabComponent && (
 						<TabComponent
@@ -405,7 +717,8 @@ const TeamWork = ({
 													'white-space': 'nowrap'
 												}}
 											>
-												{users.length} Team Members
+												{/* {setTotal(users.length)} */}
+												{play && clientproj ? users.length : ''} Team Members
 												{sortingColumn === 'name' ? (
 													<a href='/' style={{ color: 'white', marginLeft: '2px' }}>
 														{sortingOrder === 'ASC' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
@@ -414,22 +727,6 @@ const TeamWork = ({
 													''
 												)}
 											</th>
-
-											{/* <th
-												style={{
-													textAlign: 'left',
-													position: 'relative',
-													right: '-30px',
-													paddingRight: '5rem',
-													fontSize: '14px',
-													lineHeight: '21px',
-													fontFamily: 'Poppins',
-													fontWeight: '500',
-													width: 'max-content'
-												}}
-											>
-												Activity
-											</th> */}
 
 											<th
 												onClick={e => {
@@ -564,6 +861,7 @@ const TeamWork = ({
 											</th>
 										</tr>
 									</thead>
+									{/* ======================= Abhisek Maiti ======================== */}
 									{redproj ? (
 										<tbody>
 											{users
@@ -591,7 +889,7 @@ const TeamWork = ({
 												  })
 												: ''}
 										</tbody>
-									) : (
+									) : clientproj ? (
 										<tbody>
 											{users
 												? users.map((user, key) => {
@@ -613,6 +911,208 @@ const TeamWork = ({
 																setLoading={setLoading}
 															/>
 														);
+												  })
+												: ''}
+										</tbody>
+									) : multi ? (
+										<tbody>
+											{users
+												? users.map((user, key) => {
+														if (user.project_ids.length > 1) {
+															return (
+																<TableRow
+																	key={key}
+																	img={user.avatar}
+																	user_id={user.user_id}
+																	tasks={user.tasks_count}
+																	name={user.name}
+																	active={user.active_count}
+																	active_todo={user.active_todo_count}
+																	projects={user.project_ids}
+																	completed_todo={user.completed_todo}
+																	last_active_at={user.last_active_at}
+																	projectsdata={projects}
+																	data={data.users}
+																	getTeamWorkData={getTeamWorkData}
+																	setLoading={setLoading}
+																/>
+															);
+														}
+												  })
+												: ''}
+										</tbody>
+									) : prwise ? (
+										<tbody>
+											{projectData
+												? projectData.map((item, key) => {
+														return (
+															<
+																// style={{
+																// 	fontSize: '20px',
+																// 	color: 'white',
+																// 	// opacity: '0.2',
+																// 	width: '100%',
+																// 	marginBottom: '5rem'
+																// 	// display: 'flex'
+																// 	// flexDirection: 'column'
+																// }}
+																// key={key}
+															>
+																<div
+																	style={{
+																		marginBottom: '4rem',
+																		marginTop: '4rem',
+																		fontSize: '20px',
+																		fontWeight: 'bold',
+																		opacity: '0.3'
+																	}}
+																>
+																	{item.name}
+																</div>
+																{users ? (
+																	item.open_task_count === 0 ? (
+																		<span>no unique user found</span>
+																	) : (
+																		users.map((user, id) => {
+																			if (
+																				user.project_ids.includes(item.project_id) &&
+																				user.project_ids.length === 1
+																			) {
+																				return (
+																					<TableRow
+																						key={id}
+																						img={user.avatar}
+																						user_id={user.user_id}
+																						tasks={user.tasks_count}
+																						name={user.name}
+																						active={user.active_count}
+																						active_todo={user.active_todo_count}
+																						projects={user.project_ids}
+																						completed_todo={user.completed_todo}
+																						last_active_at={user.last_active_at}
+																						projectsdata={projects}
+																						data={data.users}
+																						getTeamWorkData={getTeamWorkData}
+																						setLoading={setLoading}
+																					/>
+																				);
+																			}
+																		})
+																	)
+																) : (
+																	'no member found'
+																)}
+															</>
+														);
+												  })
+												: 'no data'}
+											{/* <h1>hello</h1> */}
+										</tbody>
+									) : idle ? (
+										<tbody>
+											{users
+												? users.map((user, key) => {
+														if (user.project_ids.length === 0) {
+															return (
+																<TableRow
+																	key={key}
+																	img={user.avatar}
+																	user_id={user.user_id}
+																	tasks={user.tasks_count}
+																	name={user.name}
+																	active={user.active_count}
+																	active_todo={user.active_todo_count}
+																	projects={user.project_ids}
+																	completed_todo={user.completed_todo}
+																	last_active_at={user.last_active_at}
+																	projectsdata={projects}
+																	data={data.users}
+																	getTeamWorkData={getTeamWorkData}
+																	setLoading={setLoading}
+																/>
+															);
+														}
+												  })
+												: ''}
+										</tbody>
+									) : top ? (
+										<tbody>
+											{users
+												? users.map((user, key) => {
+														if (user.completed_todo >= 5) {
+															return (
+																<TableRow
+																	key={key}
+																	img={user.avatar}
+																	user_id={user.user_id}
+																	tasks={user.tasks_count}
+																	name={user.name}
+																	active={user.active_count}
+																	active_todo={user.active_todo_count}
+																	projects={user.project_ids}
+																	completed_todo={user.completed_todo}
+																	last_active_at={user.last_active_at}
+																	projectsdata={projects}
+																	data={data.users}
+																	getTeamWorkData={getTeamWorkData}
+																	setLoading={setLoading}
+																/>
+															);
+														}
+												  })
+												: ''}
+										</tbody>
+									) : median ? (
+										<tbody>
+											{users
+												? users.map((user, key) => {
+														if (user.completed_todo < 5 && user.completed_todo > 1) {
+															return (
+																<TableRow
+																	key={key}
+																	img={user.avatar}
+																	user_id={user.user_id}
+																	tasks={user.tasks_count}
+																	name={user.name}
+																	active={user.active_count}
+																	active_todo={user.active_todo_count}
+																	projects={user.project_ids}
+																	completed_todo={user.completed_todo}
+																	last_active_at={user.last_active_at}
+																	projectsdata={projects}
+																	data={data.users}
+																	getTeamWorkData={getTeamWorkData}
+																	setLoading={setLoading}
+																/>
+															);
+														}
+												  })
+												: ''}
+										</tbody>
+									) : (
+										<tbody>
+											{users
+												? users.map((user, key) => {
+														if (user.completed_todo === 0) {
+															return (
+																<TableRow
+																	key={key}
+																	img={user.avatar}
+																	user_id={user.user_id}
+																	tasks={user.tasks_count}
+																	name={user.name}
+																	active={user.active_count}
+																	active_todo={user.active_todo_count}
+																	projects={user.project_ids}
+																	completed_todo={user.completed_todo}
+																	last_active_at={user.last_active_at}
+																	projectsdata={projects}
+																	data={data.users}
+																	getTeamWorkData={getTeamWorkData}
+																	setLoading={setLoading}
+																/>
+															);
+														}
 												  })
 												: ''}
 										</tbody>
